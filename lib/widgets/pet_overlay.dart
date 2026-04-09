@@ -75,14 +75,16 @@ class _PetOverlayState extends State<PetOverlay> {
   }
 
   void _onTipChanged() {
-    _tip = MissionTipsController.current.value;
-    if (_tip == null) {
-      if (mounted) {
+    final next = MissionTipsController.current.value;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _tip = next;
+      if (_tip == null) {
         setState(() => _showTip = false);
+        return;
       }
-      return;
-    }
-    _showTipForDuration();
+      _showTipForDuration();
+    });
   }
 
   void _showTipForDuration() {
@@ -120,30 +122,49 @@ class _PetOverlayState extends State<PetOverlay> {
       valueListenable: MissionTipsController.petVisible,
       builder: (context, visible, _) {
         if (!visible) return const SizedBox.shrink();
-        return Positioned(
-          left: _offset!.dx,
-          top: _offset!.dy,
+        return Positioned.fill(
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              if (_showTip && _tip != null)
-                Positioned(
-                  right: 0,
-                  bottom: _petSize + 10,
-                  child: _TipBubble(tip: _tip!),
+              if (_showTip)
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () {
+                    setState(() => _showTip = false);
+                    _hideTimer?.cancel();
+                  },
                 ),
-              GestureDetector(
-                onPanUpdate: (details) {
-                  final media = MediaQuery.of(context);
-                  final next = _offset! + details.delta;
-                  setState(() {
-                    _offset = _clampOffset(next, media.size, media.padding);
-                  });
-                },
-                child: PetVideo(
-                  controller: _controller,
-                  isReady: _ready,
-                  onTap: _handleTap,
+              Positioned(
+                left: _offset!.dx,
+                top: _offset!.dy,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    if (_showTip && _tip != null)
+                      Positioned(
+                        right: 0,
+                        bottom: _petSize + 10,
+                        child: _TipBubble(tip: _tip!),
+                      ),
+                    GestureDetector(
+                      onPanUpdate: (details) {
+                        final media = MediaQuery.of(context);
+                        final next = _offset! + details.delta;
+                        setState(() {
+                          _offset = _clampOffset(
+                            next,
+                            media.size,
+                            media.padding,
+                          );
+                        });
+                      },
+                      child: PetVideo(
+                        controller: _controller,
+                        isReady: _ready,
+                        onTap: _handleTap,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

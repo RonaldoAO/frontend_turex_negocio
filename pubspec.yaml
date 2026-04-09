@@ -51,6 +51,8 @@ dependencies:
   flutter_map: ^8.2.2
   latlong2: ^0.9.1
   mobile_scanner: ^7.2.0
+  supabase_flutter: ^2.12.2
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:

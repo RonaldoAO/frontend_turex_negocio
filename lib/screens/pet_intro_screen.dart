@@ -18,7 +18,9 @@ class _PetIntroScreenState extends State<PetIntroScreen> {
   @override
   void initState() {
     super.initState();
-    MissionTipsController.setPetVisible(false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      MissionTipsController.setPetVisible(false);
+    });
     _controller = VideoPlayerController.asset('assets/videos/ratita2.mp4');
     _initVideo();
   }
@@ -35,7 +37,9 @@ class _PetIntroScreenState extends State<PetIntroScreen> {
   @override
   void dispose() {
     _controller.dispose();
-    MissionTipsController.setPetVisible(true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      MissionTipsController.setPetVisible(true);
+    });
     super.dispose();
   }
 

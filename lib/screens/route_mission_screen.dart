@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/mission.dart';
+import '../services/companies_service.dart';
+import '../state/mission_progress.dart';
 import '../state/mission_tips.dart';
 import 'map_mission_screen.dart';
 
@@ -13,6 +15,7 @@ class RouteMissionScreen extends StatefulWidget {
 }
 
 class _RouteMissionScreenState extends State<RouteMissionScreen> {
+  static const int _totalSteps = 4;
   static const List<MissionTip> _tips = [
     MissionTip(
       title: 'Dona Lupita - Tlayudas',
@@ -77,28 +80,8 @@ class _RouteMissionScreenState extends State<RouteMissionScreen> {
       title: 'Manana',
       subtitle: 'Desayuno oaxaqueno',
       icon: Icons.breakfast_dining,
-      businesses: [
-        BusinessLocation(
-          name: 'Fonda Central',
-          lat: 17.0609,
-          lng: -96.7256,
-        ),
-        BusinessLocation(
-          name: 'Mercado 20 Nov',
-          lat: 17.0597,
-          lng: -96.7286,
-        ),
-        BusinessLocation(
-          name: 'Cocina del Istmo',
-          lat: 17.0621,
-          lng: -96.7242,
-        ),
-        BusinessLocation(
-          name: 'Tlayudas La Plaza',
-          lat: 17.0615,
-          lng: -96.7219,
-        ),
-      ],
+      businesses: [],
+      remoteLoader: fetchOaxacaBreakfastCompanies,
     ),
     MissionStep(
       title: 'Medio dia',
@@ -106,24 +89,32 @@ class _RouteMissionScreenState extends State<RouteMissionScreen> {
       icon: Icons.handyman,
       businesses: [
         BusinessLocation(
+          id: 'artisan-1',
           name: 'Taller Tejido Oaxaca',
           lat: 17.0632,
           lng: -96.7264,
+          status: 'OPEN',
         ),
         BusinessLocation(
+          id: 'artisan-2',
           name: 'Arte en Barro',
           lat: 17.0588,
           lng: -96.7233,
+          status: 'OPEN',
         ),
         BusinessLocation(
+          id: 'artisan-3',
           name: 'Textiles del Centro',
           lat: 17.0603,
           lng: -96.7208,
+          status: 'OPEN',
         ),
         BusinessLocation(
+          id: 'artisan-4',
           name: 'Manos de Oax',
           lat: 17.0627,
           lng: -96.7291,
+          status: 'OPEN',
         ),
       ],
     ),
@@ -133,19 +124,25 @@ class _RouteMissionScreenState extends State<RouteMissionScreen> {
       icon: Icons.lunch_dining,
       businesses: [
         BusinessLocation(
+          id: 'food-1',
           name: 'Mole & Mezcal',
           lat: 17.0583,
           lng: -96.7269,
+          status: 'OPEN',
         ),
         BusinessLocation(
+          id: 'food-2',
           name: 'Sazon de la Sierra',
           lat: 17.0612,
           lng: -96.7294,
+          status: 'OPEN',
         ),
         BusinessLocation(
+          id: 'food-3',
           name: 'Sabores del Zocalo',
           lat: 17.0624,
           lng: -96.7239,
+          status: 'OPEN',
         ),
       ],
     ),
@@ -155,19 +152,25 @@ class _RouteMissionScreenState extends State<RouteMissionScreen> {
       icon: Icons.theater_comedy,
       businesses: [
         BusinessLocation(
+          id: 'night-1',
           name: 'Centro Cultural',
           lat: 17.0596,
           lng: -96.7246,
+          status: 'OPEN',
         ),
         BusinessLocation(
+          id: 'night-2',
           name: 'Patio de Musica',
           lat: 17.0637,
           lng: -96.7278,
+          status: 'OPEN',
         ),
         BusinessLocation(
+          id: 'night-3',
           name: 'Teatro Local',
           lat: 17.0618,
           lng: -96.7302,
+          status: 'OPEN',
         ),
       ],
     ),
@@ -179,6 +182,11 @@ class _RouteMissionScreenState extends State<RouteMissionScreen> {
   @override
   void initState() {
     super.initState();
+    final progress = MissionProgressController.current.value;
+    if (progress.started) {
+      _currentIndex = progress.currentIndex;
+      _completed.addAll(List.generate(progress.completedCount, (i) => i));
+    }
     MissionTipsController.setTips(_tips);
     MissionTipsController.showRandom();
   }
@@ -190,6 +198,9 @@ class _RouteMissionScreenState extends State<RouteMissionScreen> {
   }
 
   Future<void> _startCurrentMission() async {
+    if (!_completed.contains(_currentIndex)) {
+      MissionProgressController.markStarted();
+    }
     final step = _steps[_currentIndex];
     final completed = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
@@ -204,6 +215,10 @@ class _RouteMissionScreenState extends State<RouteMissionScreen> {
           _currentIndex += 1;
         }
       });
+      MissionProgressController.updateProgress(
+        currentIndex: _currentIndex,
+        completedCount: _completed.length,
+      );
       MissionTipsController.showRandom();
     }
   }
@@ -343,7 +358,8 @@ class _RouteMissionScreenState extends State<RouteMissionScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _startCurrentMission,
+                onPressed:
+                    _completed.length >= _totalSteps ? null : _startCurrentMission,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1E2430),
                   foregroundColor: Colors.white,
@@ -353,7 +369,12 @@ class _RouteMissionScreenState extends State<RouteMissionScreen> {
                   ),
                 ),
                 child: Text(
-                  'Iniciar mision',
+                  _completed.length >= _totalSteps
+                      ? 'Ruta completada'
+                      : MissionProgressController.current.value.started ||
+                              _completed.isNotEmpty
+                          ? 'Continuar'
+                          : 'Iniciar mision',
                   style: GoogleFonts.manrope(
                     fontWeight: FontWeight.w700,
                   ),

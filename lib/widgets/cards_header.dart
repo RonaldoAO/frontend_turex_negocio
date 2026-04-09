@@ -7,16 +7,25 @@ import '../utils/ui_utils.dart';
 import 'image_fill.dart';
 import 'stat_widgets.dart';
 
+class CardsHeaderCopy {
+  final Map<String, String> text;
+  const CardsHeaderCopy(this.text);
+
+  String get(String key) => text[key] ?? key;
+}
+
 class CardsHeaderDelegate extends SliverPersistentHeaderDelegate {
   final double maxHeight;
   final double minHeight;
   final PageController controller;
   final VoidCallback? onOaxacaTap;
+  final CardsHeaderCopy copy;
 
   CardsHeaderDelegate({
     required this.maxHeight,
     required this.minHeight,
     required this.controller,
+    required this.copy,
     this.onOaxacaTap,
   });
 
@@ -37,10 +46,10 @@ class CardsHeaderDelegate extends SliverPersistentHeaderDelegate {
         child: PageView(
           controller: controller,
           children: [
-            _TouristCardLeft(t: t, onTap: onOaxacaTap),
-            _TouristCardLeftAltOne(t: t),
-            _TouristCardLeftAltTwo(t: t),
-            _TouristCardRight(t: t),
+            _TouristCardLeft(t: t, onTap: onOaxacaTap, copy: copy),
+            _TouristCardLeftAltOne(t: t, copy: copy),
+            _TouristCardLeftAltTwo(t: t, copy: copy),
+            _TouristCardRight(t: t, copy: copy),
           ],
         ),
       ),
@@ -52,14 +61,20 @@ class CardsHeaderDelegate extends SliverPersistentHeaderDelegate {
     return maxHeight != oldDelegate.maxHeight ||
         minHeight != oldDelegate.minHeight ||
         controller != oldDelegate.controller ||
-        onOaxacaTap != oldDelegate.onOaxacaTap;
+        onOaxacaTap != oldDelegate.onOaxacaTap ||
+        copy != oldDelegate.copy;
   }
 }
 
 class _TouristCardLeft extends StatelessWidget {
   final double t;
   final VoidCallback? onTap;
-  const _TouristCardLeft({required this.t, this.onTap});
+  final CardsHeaderCopy copy;
+  const _TouristCardLeft({
+    required this.t,
+    this.onTap,
+    required this.copy,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -89,139 +104,140 @@ class _TouristCardLeft extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-            const ImageFill(
-              url:
-                  'https://plus.unsplash.com/premium_photo-1730425752722-f5f31f316f61'
-                  '?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid='
-                  'M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-            ),
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFCA7C54),
-                    Color(0x882B1F1B),
-                    Colors.transparent,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                const ImageFill(
+                  url:
+                      'https://plus.unsplash.com/premium_photo-1730425752722-f5f31f316f61'
+                      '?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid='
+                      'M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 ),
-              ),
-            ),
-            Padding(
-              padding: contentPadding,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizeTransition(
-                    sizeFactor: AlwaysStoppedAnimation(textFactor),
-                    axisAlignment: -1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('RUTA VIVA DE OAXACA', style: textTheme.displaySmall),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Vive Oaxaca a piel, sin filtros ni rutas genericas: '
-                          'solo experiencias reales que te muestran exactamente '
-                          'que hacer en cada momento.',
-                          style: textTheme.bodyMedium,
-                        ),
+                Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color(0xFFCA7C54),
+                        Color(0x882B1F1B),
+                        Colors.transparent,
                       ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
                   ),
-                  const Spacer(),
-                  Transform.translate(
-                    offset: Offset(0, chipsShift),
-                    child: Row(
-                      children: const [
-                        StatChip(
-                          title: '120',
-                          subtitle: 'negocios',
-                          color: Color(0xFF2E63F6),
+                ),
+                Padding(
+                  padding: contentPadding,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizeTransition(
+                        sizeFactor: AlwaysStoppedAnimation(textFactor),
+                        axisAlignment: -1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              copy.get('cards.card1.title'),
+                              style: textTheme.displaySmall,
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              copy.get('cards.card1.body'),
+                              style: textTheme.bodyMedium,
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 16),
-                        StatChip(
-                          title: '4.9',
-                          subtitle: 'ranking',
-                          color: Color(0xFF1C1C1C),
+                      ),
+                      const Spacer(),
+                      Transform.translate(
+                        offset: Offset(0, chipsShift),
+                        child: Row(
+                          children: [
+                            StatChip(
+                              title: '120',
+                              subtitle: copy.get('cards.card1.statBusinesses'),
+                              color: const Color(0xFF2E63F6),
+                            ),
+                            const SizedBox(width: 16),
+                            StatChip(
+                              title: '4.9',
+                              subtitle: copy.get('cards.card1.statRating'),
+                              color: const Color(0xFF1C1C1C),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: ui.lerpDouble(18, 6, collapse) ?? 12),
-                  Opacity(
-                    opacity: buttonOpacity,
-                    child: Transform.scale(
-                      scale: buttonScale,
-                      child: Center(
-                        child: Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white70,
-                              width: 1.2,
+                      ),
+                      SizedBox(height: ui.lerpDouble(18, 6, collapse) ?? 12),
+                      Opacity(
+                        opacity: buttonOpacity,
+                        child: Transform.scale(
+                          scale: buttonScale,
+                          child: Center(
+                            child: Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white70,
+                                  width: 1.2,
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.near_me_outlined,
+                                    color: Colors.white,
+                                    size: 26,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    copy.get('cards.card1.action'),
+                                    style: textTheme.labelLarge,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.near_me_outlined,
-                                color: Colors.white,
-                                size: 26,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Iniciar',
-                                style: textTheme.labelLarge,
-                              ),
-                            ],
-                          ),
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  right: 18,
+                  bottom: 18,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.pin_drop, size: 16, color: Color(0xFF3A4B66)),
+                        const SizedBox(width: 6),
+                        Text(
+                          copy.get('cards.card1.location'),
+                          style: GoogleFonts.manrope(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF3A4B66),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-            Positioned(
-              right: 18,
-              bottom: 18,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
                 ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.pin_drop, size: 16, color: Color(0xFF3A4B66)),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Oaxaca de Juarez, OAXACA',
-                      style: GoogleFonts.manrope(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF3A4B66),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
               ],
             ),
           ),
@@ -233,7 +249,8 @@ class _TouristCardLeft extends StatelessWidget {
 
 class _TouristCardLeftAltOne extends StatelessWidget {
   final double t;
-  const _TouristCardLeftAltOne({required this.t});
+  final CardsHeaderCopy copy;
+  const _TouristCardLeftAltOne({required this.t, required this.copy});
 
   @override
   Widget build(BuildContext context) {
@@ -279,10 +296,10 @@ class _TouristCardLeftAltOne extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('VELA ISTMEÑA', style: textTheme.displaySmall),
+                  Text(copy.get('cards.card2.title'), style: textTheme.displaySmall),
                   const SizedBox(height: 6),
                   Text(
-                    'La noche que nunca se apaga',
+                    copy.get('cards.card2.subtitle'),
                     style: textTheme.bodyMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
@@ -293,9 +310,7 @@ class _TouristCardLeftAltOne extends StatelessWidget {
                     sizeFactor: AlwaysStoppedAnimation(descFactor),
                     axisAlignment: -1,
                     child: Text(
-                      'Fiesta comunitaria en el Istmo de Oaxaca, llena de '
-                      'musica en vivo, baile y tradicion que se vive hasta '
-                      'el amanecer.',
+                      copy.get('cards.card2.body'),
                       style: textTheme.bodyMedium,
                     ),
                   ),
@@ -306,10 +321,10 @@ class _TouristCardLeftAltOne extends StatelessWidget {
                     child: Wrap(
                       spacing: 10,
                       runSpacing: 10,
-                      children: const [
-                        MiniInfo(label: '6 paradas'),
-                        MiniInfo(label: '2.2 km'),
-                        MiniInfo(label: 'Live DJ'),
+                      children: [
+                        MiniInfo(label: copy.get('cards.card2.chipStops')),
+                        MiniInfo(label: copy.get('cards.card2.chipDistance')),
+                        MiniInfo(label: copy.get('cards.card2.chipMusic')),
                       ],
                     ),
                   ),
@@ -318,42 +333,50 @@ class _TouristCardLeftAltOne extends StatelessWidget {
                     offset: Offset(0, rowShift),
                     child: Row(
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Desde',
-                              style: textTheme.bodyMedium,
-                            ),
-                            Text(
-                              r'$2200',
-                              style: GoogleFonts.bebasNeue(
-                                fontSize: 34,
-                                color: Colors.white,
-                                letterSpacing: 1.2,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Spacer(),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2E63F6),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.star, color: Colors.white, size: 16),
-                              const SizedBox(width: 6),
                               Text(
-                                '4.8 • Reserva',
-                                style: textTheme.labelLarge,
+                                copy.get('cards.card2.priceLabel'),
+                                style: textTheme.bodyMedium,
+                              ),
+                              Text(
+                                r'$2200',
+                                style: GoogleFonts.bebasNeue(
+                                  fontSize: 34,
+                                  color: Colors.white,
+                                  letterSpacing: 1.2,
+                                ),
                               ),
                             ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerRight,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2E63F6),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.star, color: Colors.white, size: 16),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    copy.get('cards.card2.reserveCta'),
+                                    style: textTheme.labelLarge,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -370,7 +393,7 @@ class _TouristCardLeftAltOne extends StatelessWidget {
                   const Icon(Icons.location_on, size: 16, color: Colors.white70),
                   const SizedBox(width: 6),
                   Text(
-                    'Centro Historico, CDMX',
+                    copy.get('cards.card2.location'),
                     style: GoogleFonts.manrope(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -389,7 +412,8 @@ class _TouristCardLeftAltOne extends StatelessWidget {
 
 class _TouristCardLeftAltTwo extends StatelessWidget {
   final double t;
-  const _TouristCardLeftAltTwo({required this.t});
+  final CardsHeaderCopy copy;
+  const _TouristCardLeftAltTwo({required this.t, required this.copy});
 
   @override
   Widget build(BuildContext context) {
@@ -414,8 +438,8 @@ class _TouristCardLeftAltTwo extends StatelessWidget {
           children: [
             const ImageFill(
               url:
-                  'https://images.unsplash.com/photo-1501785888041-af3ef285b470'
-                  '?auto=format&fit=crop&w=900&q=80',
+                  'https://images.pexels.com/photos/16977412/'
+                  'pexels-photo-16977412.jpeg',
             ),
             Container(
               decoration: const BoxDecoration(
@@ -435,14 +459,13 @@ class _TouristCardLeftAltTwo extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('CAMINATA VERDE', style: textTheme.displaySmall),
+                  Text(copy.get('cards.card3.title'), style: textTheme.displaySmall),
                   const SizedBox(height: 6),
                   SizeTransition(
                     sizeFactor: AlwaysStoppedAnimation(descFactor),
                     axisAlignment: -1,
                     child: Text(
-                      'Senderos, miradores y puntos para fotos en la '
-                      'manana. Ideal para grupos pequenos.',
+                      copy.get('cards.card3.body'),
                       style: textTheme.bodyMedium,
                     ),
                   ),
@@ -466,8 +489,7 @@ class _TouristCardLeftAltTwo extends StatelessWidget {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'Salida 7:00 AM • Punto de encuentro: '
-                              'Metro Viveros',
+                              copy.get('cards.card3.info'),
                               style: textTheme.bodyMedium,
                             ),
                           ),
@@ -479,20 +501,20 @@ class _TouristCardLeftAltTwo extends StatelessWidget {
                   Transform.translate(
                     offset: Offset(0, rowShift),
                     child: Row(
-                      children: const [
+                      children: [
                         StatChip(
                           title: '8.2',
-                          subtitle: 'km',
-                          color: Color(0xFF1C1C1C),
+                          subtitle: copy.get('cards.card3.statKm'),
+                          color: const Color(0xFF1C1C1C),
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         StatChip(
                           title: '3.5',
-                          subtitle: 'hrs',
-                          color: Color(0xFF2E63F6),
+                          subtitle: copy.get('cards.card3.statHrs'),
+                          color: const Color(0xFF2E63F6),
                         ),
-                        Spacer(),
-                        _ArrowCircle(),
+                        const Spacer(),
+                        const _ArrowCircle(),
                       ],
                     ),
                   ),
@@ -512,7 +534,7 @@ class _TouristCardLeftAltTwo extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Text(
-                  'Viveros, CDMX',
+                  copy.get('cards.card3.location'),
                   style: GoogleFonts.manrope(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -553,7 +575,8 @@ class _ArrowCircle extends StatelessWidget {
 
 class _TouristCardRight extends StatelessWidget {
   final double t;
-  const _TouristCardRight({required this.t});
+  final CardsHeaderCopy copy;
+  const _TouristCardRight({required this.t, required this.copy});
 
   @override
   Widget build(BuildContext context) {
@@ -613,11 +636,11 @@ class _TouristCardRight extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Renata Alvarez',
+                            copy.get('cards.card4.name'),
                             style: textTheme.titleLarge,
                           ),
                           Text(
-                            'Guia local • Nivel 28',
+                            copy.get('cards.card4.role'),
                             style: textTheme.bodyMedium,
                           ),
                         ],
@@ -628,15 +651,15 @@ class _TouristCardRight extends StatelessWidget {
                   Transform.translate(
                     offset: Offset(0, rowShift),
                     child: Row(
-                      children: const [
+                      children: [
                         Metric(
                           value: '824',
-                          label: 'Rutas',
+                          label: copy.get('cards.card4.metricRoutes'),
                         ),
-                        SizedBox(width: 20),
+                        const SizedBox(width: 20),
                         Metric(
                           value: '56',
-                          label: 'Estancias',
+                          label: copy.get('cards.card4.metricStays'),
                         ),
                       ],
                     ),
@@ -656,21 +679,20 @@ class _TouristCardRight extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Chapultepec Nocturno',
+                            copy.get('cards.card4.title'),
                             style: textTheme.titleLarge,
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'Recorre senderos iluminados, lagos y museos '
-                            'con musica en vivo y food trucks locales.',
+                            copy.get('cards.card4.body'),
                             style: textTheme.bodyMedium,
                           ),
                           const SizedBox(height: 10),
                           Row(
-                            children: const [
-                              Tag(text: 'Arte y cultura'),
-                              SizedBox(width: 8),
-                              Tag(text: '2.5 hrs'),
+                            children: [
+                              Tag(text: copy.get('cards.card4.tag1')),
+                              const SizedBox(width: 8),
+                              Tag(text: copy.get('cards.card4.tag2')),
                             ],
                           ),
                         ],
@@ -681,7 +703,7 @@ class _TouristCardRight extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        'Bosque de Chapultepec',
+                        copy.get('cards.card4.footer'),
                         style: textTheme.labelLarge?.copyWith(
                           color: Colors.white70,
                         ),
